@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>할 일 목록</title>
+  <style>
+    :root {
+      --bg: #fff8db;
+      --card: #fffdf5;
+      --line: #fde68a;
+      --text: #422006;
+      --muted: #a16207;
+      --primary: #facc15;
+      --primary-hover: #eab308;
+      --focus: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 48px 16px;
+      background: var(--bg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      color: var(--text);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 6px 20px rgba(202, 138, 4, 0.15);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .mascot {
+      width: 72px;
+      height: 86px;
+      flex-shrink: 0;
+    }
+
+    .mascot.bounce {
+      animation: bounce 0.5s ease;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-12px); }
+      60% { transform: translateY(0); }
+      80% { transform: translateY(-4px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mascot.bounce {
+        animation: none;
+      }
+    }
+
+    .header-text {
+      min-width: 0;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .bubble {
+      position: relative;
+      display: inline-block;
+      margin: 0;
+      padding: 6px 12px;
+      background: #fef9c3;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .bubble::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 6px 8px 6px 0;
+      border-style: solid;
+      border-color: transparent var(--line) transparent transparent;
+    }
+
+    .add-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .add-form input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 12px;
+      font-size: 16px;
+      background: #ffffff;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+    }
+
+    .add-form input:focus {
+      outline: none;
+      border-color: var(--focus);
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .add-btn {
+      background: var(--primary);
+      color: var(--text);
+      font-weight: bold;
+    }
+
+    .add-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .todo-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px dashed var(--line);
+    }
+
+    .todo-text {
+      word-break: break-all;
+    }
+
+    .delete-btn {
+      background: #fef3c7;
+      color: #b45309;
+      padding: 6px 12px;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .delete-btn:hover {
+      background: #fde68a;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 24px 0;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="header">
+      <!-- 우땅이: 땅콩 모양 캐릭터 -->
+      <svg class="mascot" id="mascot" viewBox="0 0 100 120" role="img" aria-label="우땅이">
+        <!-- 팔 -->
+        <path d="M18 82 Q8 76 10 66" stroke="#b7791f" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M82 82 Q92 76 90 66" stroke="#b7791f" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- 몸통 (땅콩 두 덩어리) -->
+        <ellipse cx="50" cy="84" rx="33" ry="30" fill="#e0a94f"/>
+        <ellipse cx="50" cy="40" rx="30" ry="30" fill="#e0a94f"/>
+        <!-- 땅콩 껍질 무늬 -->
+        <g fill="#c98a2e" opacity="0.6">
+          <circle cx="30" cy="26" r="2"/>
+          <circle cx="68" cy="24" r="2"/>
+          <circle cx="38" cy="90" r="2"/>
+          <circle cx="62" cy="96" r="2"/>
+          <circle cx="50" cy="104" r="2"/>
+          <circle cx="70" cy="80" r="2"/>
+        </g>
+        <!-- 눈 -->
+        <circle cx="40" cy="40" r="4.5" fill="#422006"/>
+        <circle cx="60" cy="40" r="4.5" fill="#422006"/>
+        <circle cx="41.5" cy="38.5" r="1.5" fill="#ffffff"/>
+        <circle cx="61.5" cy="38.5" r="1.5" fill="#ffffff"/>
+        <!-- 볼 -->
+        <ellipse cx="32" cy="50" rx="5" ry="3" fill="#f97316" opacity="0.45"/>
+        <ellipse cx="68" cy="50" rx="5" ry="3" fill="#f97316" opacity="0.45"/>
+        <!-- 입 -->
+        <path d="M44 50 Q50 56 56 50" stroke="#422006" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </svg>
+
+      <div class="header-text">
+        <h1>예지의 할 일 목록</h1>
+        <p class="bubble" id="bubble">할 일을 추가해 볼까요?</p>
+      </div>
+    </div>
+
+    <form class="add-form" id="addForm">
+      <input type="text" id="todoInput" placeholder="할 일을 입력하세요" autocomplete="off">
+      <button type="submit" class="add-btn">추가</button>
+    </form>
+
+    <ul class="todo-list" id="todoList"></ul>
+    <p class="empty" id="emptyMessage">할 일이 없어요</p>
+  </main>
+
+  <script>
+    const form = document.getElementById("addForm");
+    const input = document.getElementById("todoInput");
+    const list = document.getElementById("todoList");
+    const emptyMessage = document.getElementById("emptyMessage");
+    const mascot = document.getElementById("mascot");
+    const bubble = document.getElementById("bubble");
+
+    // 우땅이를 한 번 통통 튀게 한다
+    function bounceMascot() {
+      mascot.classList.remove("bounce");
+      void mascot.getBoundingClientRect(); // 애니메이션을 처음부터 다시 시작하기 위해 필요
+      mascot.classList.add("bounce");
+    }
+
+    // 목록 상태에 따라 안내 문구와 말풍선을 바꾼다
+    function updateStatus(justDeleted) {
+      const count = list.children.length;
+      emptyMessage.style.display = count === 0 ? "block" : "none";
+
+      if (count === 0) {
+        bubble.textContent = justDeleted ? "다 끝냈어요! 최고예요!" : "할 일을 추가해 볼까요?";
+      } else if (justDeleted) {
+        bubble.textContent = "하나 끝! 이제 " + count + "개 남았어요";
+      } else {
+        bubble.textContent = "할 일이 " + count + "개 있어요. 화이팅!";
+      }
+    }
+
+    // 할 일 항목 하나를 만들어 목록에 붙인다
+    function addTodo(text) {
+      const item = document.createElement("li");
+      item.className = "todo-item";
+
+      const span = document.createElement("span");
+      span.className = "todo-text";
+      span.textContent = text;
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "삭제";
+      deleteBtn.addEventListener("click", function () {
+        item.remove();
+        updateStatus(true);
+        bounceMascot();
+      });
+
+      item.appendChild(span);
+      item.appendChild(deleteBtn);
+      list.appendChild(item);
+      updateStatus(false);
+      bounceMascot();
+    }
+
+    // 추가 버튼 클릭 또는 Enter 입력 시 실행된다
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (text === "") {
+        input.focus();
+        return;
+      }
+      addTodo(text);
+      input.value = "";
+      input.focus();
+    });
+
+    updateStatus(false);
+  </script>
+</body>
+</html>
